@@ -1,7 +1,7 @@
 ARG S3QL_VERSION="5.1.3"
 ARG S3QL_FILE="s3ql-${S3QL_VERSION}.tar.gz"
 ARG S3QL_URL="https://github.com/s3ql/s3ql/releases/download/s3ql-${S3QL_VERSION}/${S3QL_FILE}"
-ARG S3QL_BUILD_PIPS="wheel cryptography defusedxml requests apsw>=3.7.0 trio>=0.15 dugong>=3.4,<4.0 google-auth google-auth-oauthlib sphinx pyfuse3>=3.2.2"
+ARG S3QL_BUILD_PIPS="wheel cryptography defusedxml requests apsw>=3.7.0 trio>=0.15 dugong>=3.4,<4.0 google-auth google-auth-oauthlib sphinx pyfuse3>=3.2.2 setuptools"
 
 FROM alpine AS build
 
@@ -23,7 +23,7 @@ RUN \
 
 RUN \
 	pip install --user --ignore-installed ${S3QL_BUILD_PIPS} && \
- 	tar -xf "/tmp/$S3QL_FILE" && \
+	tar -xf "/tmp/$S3QL_FILE" && \
 	cd s3ql-$S3QL_VERSION && \
 	pip wheel -w /tmp/wheels .
 

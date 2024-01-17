@@ -1,0 +1,33 @@
+name: repo-dispatch
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+
+jobs:
+  dispatch:
+    strategy:
+      matrix:
+        branch: ['stable']
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
+      - id: get-tag
+        run: |
+          echo "TAG=$(git -C ${GITHUB_WORKSPACE} describe --abbrev=0)" >> $GITHUB_OUTPUT
+
+      - id: run-build
+        uses: actions/github-script@v6
+        if: steps.get-tag.outputs.TAG != ''
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'docker-publish.yml',
+                ref: '${{ steps.get-tag.outputs.TAG }}',
+            })
