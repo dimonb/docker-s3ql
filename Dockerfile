@@ -1,6 +1,6 @@
-ARG S3QL_VERSION="4.0.0"
+ARG S3QL_VERSION="5.1.3"
 ARG S3QL_FILE="s3ql-${S3QL_VERSION}.tar.gz"
-ARG S3QL_URL="https://github.com/r0ps3c/s3ql/releases/download/release-${S3QL_VERSION}+newbuild/${S3QL_FILE}"
+ARG S3QL_URL="https://github.com/s3ql/s3ql/releases/download/s3ql-${S3QL_VERSION}/${S3QL_FILE}"
 ARG S3QL_BUILD_PIPS="wheel cryptography defusedxml requests apsw>=3.7.0 trio>=0.15 dugong>=3.4,<4.0 google-auth google-auth-oauthlib sphinx pyfuse3>=3.2.2"
 
 FROM alpine AS build
@@ -14,11 +14,15 @@ ARG PYFUSE3_URL
 ARG PYFUSE3_FILE
 ARG PYFUSE3_VERSION
 
+RUN apk --no-cache add curl
+
+RUN curl -sfL "$S3QL_URL" -o "/tmp/$S3QL_FILE"
+
 RUN \
 	apk --no-cache add curl gnupg jq bzip2 g++ make pkgconfig fuse3-dev sqlite-dev libffi-dev openssl-dev python3-dev py3-pip rust cargo cython texlive texmf-dist-latexextra bash git
+
 RUN \
 	pip install --user --ignore-installed ${S3QL_BUILD_PIPS} && \
-   	curl -sfL "$S3QL_URL" -o "/tmp/$S3QL_FILE" && \
  	tar -xf "/tmp/$S3QL_FILE" && \
 	cd s3ql-$S3QL_VERSION && \
 	pip wheel -w /tmp/wheels .
